@@ -23,6 +23,7 @@ namespace PathPlan.ObstacleNS
         public float Rotation;
         public Vector2 Origin;
 
+        public Vector2 go;
         public Obstacle(Game game, SpriteBatch spriteBatch,Texture2D texture ,Rectangle theRectangle, float theInitialRotation)
             : base(game)
         {
@@ -34,6 +35,8 @@ namespace PathPlan.ObstacleNS
             //Calculate the Rectangles origin. We assume the center of the Rectangle will
             //be the point that we will be rotating around and we use that for the origin
             Origin = new Vector2((int)theRectangle.Width / 2, (int)theRectangle.Height / 2);
+
+            go = new Vector2(200, 20);
         }
 
         /// <summary>
@@ -54,7 +57,10 @@ namespace PathPlan.ObstacleNS
         public override void Update(GameTime gameTime)
         {
             // TODO: Add your update code here
-            this.ChangePosition(1,1);
+            Vector2 v = go - new Vector2(this.X, this.Y);
+            v.Normalize();
+            Rotation += 0.1F;
+            this.ChangePosition(1, 1);
             base.Update(gameTime);
         }
 

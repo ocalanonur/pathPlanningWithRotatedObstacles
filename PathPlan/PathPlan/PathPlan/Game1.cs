@@ -23,7 +23,7 @@ namespace PathPlan
         SpriteBatch spriteBatch;
 
         Texture2D t;
-        Obstacle o;
+        Obstacle o,o1;
 
         public Game1()
         {
@@ -53,8 +53,11 @@ namespace PathPlan
             spriteBatch = new SpriteBatch(GraphicsDevice);
             t = Content.Load<Texture2D>("Square");
             o = new Obstacle(this, spriteBatch, t, new Rectangle(10, 10, 60, 30), 0.4F);
+            o1 = new Obstacle(this, spriteBatch, t, new Rectangle(50, 10, 100, 80), 0.1F);
             o.Enabled = true;
+            o1.Enabled = true;
             this.Components.Add(o);
+            this.Components.Add(o1);
 
             // TODO: use this.Content to load your game content here
         }

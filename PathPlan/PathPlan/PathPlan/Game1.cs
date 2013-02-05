@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using PathPlan.ScenarioNS;
 using PathPlan.ObstacleNS;
+using PathPlan.HelperClasses;
 
 
 namespace PathPlan
@@ -52,8 +53,8 @@ namespace PathPlan
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             t = Content.Load<Texture2D>("Square");
-            o = new Obstacle(this, spriteBatch, t, new Rectangle(10, 10, 60, 30), 0.4F);
-            o1 = new Obstacle(this, spriteBatch, t, new Rectangle(50, 10, 100, 80), 0.1F);
+            o = new Obstacle(this, spriteBatch, t, new FloatRectangle(10, 10, 60, 30), 0.4F);
+            o1 = new Obstacle(this, spriteBatch, t, new FloatRectangle(50, 10, 20, 30), 0.1F);
             o.Enabled = true;
             o1.Enabled = true;
             this.Components.Add(o);

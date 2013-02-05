@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using PathPlan.HelperClasses;
 
 
 namespace PathPlan.ObstacleNS
@@ -19,12 +20,13 @@ namespace PathPlan.ObstacleNS
     {
         private Texture2D texture;
         private SpriteBatch spriteBatch;
-        public Rectangle CollisionRectangle;
+        public FloatRectangle CollisionRectangle;
         public float Rotation;
         public Vector2 Origin;
 
         public Vector2 go;
-        public Obstacle(Game game, SpriteBatch spriteBatch,Texture2D texture ,Rectangle theRectangle, float theInitialRotation)
+        public Rectangle r;
+        public Obstacle(Game game, SpriteBatch spriteBatch,Texture2D texture ,FloatRectangle theRectangle, float theInitialRotation)
             : base(game)
         {
             this.spriteBatch = spriteBatch;
@@ -34,9 +36,9 @@ namespace PathPlan.ObstacleNS
         
             //Calculate the Rectangles origin. We assume the center of the Rectangle will
             //be the point that we will be rotating around and we use that for the origin
-            Origin = new Vector2((int)theRectangle.Width / 2, (int)theRectangle.Height / 2);
+            Origin = new Vector2(theRectangle.size.X / 2, (int)theRectangle.size.Y / 2);
 
-            go = new Vector2(200, 20);
+            go = new Vector2(200, 600);
         }
 
         /// <summary>
@@ -57,10 +59,9 @@ namespace PathPlan.ObstacleNS
         public override void Update(GameTime gameTime)
         {
             // TODO: Add your update code here
-            Vector2 v = go - new Vector2(this.X, this.Y);
-            v.Normalize();
-            Rotation += 0.1F;
-            this.ChangePosition(1, 1);
+            //Vector2 v = go - new Vector2(this.X, this.Y);
+            //v.Normalize();
+            //this.ChangePosition(v.X, v.Y);
             base.Update(gameTime);
         }
 
@@ -75,7 +76,7 @@ namespace PathPlan.ObstacleNS
             // TODO: Add your drawing code here
             
             spriteBatch.Begin();
-            Rectangle aPositionAdjusted = new Rectangle(this.X + (this.Width / 2), this.Y + (this.Height / 2), this.Width, this.Height);
+            Rectangle aPositionAdjusted = new Rectangle((int)this.X + (int)(this.Width / 2), (int)this.Y + (int)(this.Height / 2), (int)this.Width, (int)this.Height);
             spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), Color.Red, this.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
             spriteBatch.End();
             base.Draw(gameTime);
@@ -86,10 +87,10 @@ namespace PathPlan.ObstacleNS
         /// </summary>
         /// <param name="theXPositionAdjustment"></param>
         /// <param name="theYPositionAdjustment"></param>
-        public void ChangePosition(int theXPositionAdjustment, int theYPositionAdjustment)
+        public void ChangePosition(float theXPositionAdjustment, float theYPositionAdjustment)
         {
-            CollisionRectangle.X += theXPositionAdjustment;
-            CollisionRectangle.Y += theYPositionAdjustment;
+            CollisionRectangle.position.X += theXPositionAdjustment;
+            CollisionRectangle.position.Y += theYPositionAdjustment;
         }
 
         /// <summary>
@@ -98,7 +99,7 @@ namespace PathPlan.ObstacleNS
         /// </summary>
         /// <param name="theRectangle"></param>
         /// <returns></returns>
-        public bool Intersects(Rectangle theRectangle)
+        public bool Intersects(FloatRectangle theRectangle)
         {
             return Intersects(new Obstacle(this.Game, spriteBatch, texture, theRectangle, 0.0f));
         }
@@ -248,24 +249,24 @@ namespace PathPlan.ObstacleNS
             return aLowerRight;
         }
 
-        public int X
+        public float X
         {
-            get { return CollisionRectangle.X; }
+            get { return CollisionRectangle.position.X; }
         }
 
-        public int Y
+        public float Y
         {
-            get { return CollisionRectangle.Y; }
+            get { return CollisionRectangle.position.Y; }
         }
 
-        public int Width
+        public float Width
         {
-            get { return CollisionRectangle.Width; }
+            get { return CollisionRectangle.size.X; }
         }
 
-        public int Height
+        public float Height
         {
-            get { return CollisionRectangle.Height; }
+            get { return CollisionRectangle.size.Y; }
         }
     }
 }

@@ -107,6 +107,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AgentNS\Agent.cs" />
+    <Compile Include="HelperClasses\Configuration.cs" />
     <Compile Include="HelperClasses\FloatRectangle.cs" />
     <Compile Include="HelperClasses\RotatedRectangle.cs" />
     <Compile Include="ObstacleNS\Obstacle.cs" />

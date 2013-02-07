@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework.Media;
 using PathPlan.ScenarioNS;
 using PathPlan.ObstacleNS;
 using PathPlan.HelperClasses;
+using PathPlan.AgentNS;
 
 
 namespace PathPlan
@@ -24,7 +25,8 @@ namespace PathPlan
         SpriteBatch spriteBatch;
 
         Texture2D t;
-        Obstacle o,o1;
+        Scenario scenario;
+        Agent agent;
 
         public Game1()
         {
@@ -53,13 +55,10 @@ namespace PathPlan
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             t = Content.Load<Texture2D>("Square");
-            o = new Obstacle(this, spriteBatch, t, new FloatRectangle(10, 10, 60, 30), 0.4F);
-            o1 = new Obstacle(this, spriteBatch, t, new FloatRectangle(50, 10, 20, 30), 0.1F);
-            o.Enabled = true;
-            o1.Enabled = true;
-            this.Components.Add(o);
-            this.Components.Add(o1);
-
+            scenario = new Scenario(this, spriteBatch, t, "Scenario1");
+            agent = new Agent(this, spriteBatch, t, 0, 0, 20, 20, 0.0F, Color.Yellow);
+            agent.Enabled = true;
+            this.Components.Add(agent);
             // TODO: use this.Content to load your game content here
         }
 
@@ -83,7 +82,6 @@ namespace PathPlan
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
             // TODO: Add your update logic here
-
             base.Update(gameTime);
         }
 

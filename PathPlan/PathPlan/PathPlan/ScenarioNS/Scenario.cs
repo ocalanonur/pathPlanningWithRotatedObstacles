@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using PathPlan.ObstacleNS;
 
 
 namespace PathPlan.ScenarioNS
@@ -15,45 +16,36 @@ namespace PathPlan.ScenarioNS
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class Scenario : Microsoft.Xna.Framework.DrawableGameComponent
+    public class Scenario
     {
-        public Scenario(Game game)
-            : base(game)
+        private Game game;
+        private SpriteBatch spriteBatch;
+        private Texture2D texture;
+        public string name;
+
+        public Scenario(Game game,SpriteBatch spriteBatch,Texture2D texture,string name)
         {
             // TODO: Construct any child components here
+            this.game = game;
+            this.spriteBatch = spriteBatch;
+            this.texture = texture;
+            this.name = name;
+            CreateObstacles();
         }
 
-        /// <summary>
-        /// Allows the game component to perform any initialization it needs to before starting
-        /// to run.  This is where it can query for any required services and load content.
-        /// </summary>
-        public override void Initialize()
+        public void CreateObstacles()
         {
-            // TODO: Add your initialization code here
-
-            base.Initialize();
-        }
-
-        /// <summary>
-        /// Allows the game component to update itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public override void Update(GameTime gameTime)
-        {
-            // TODO: Add your update code here
-            base.Update(gameTime);
-        }
-
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public override void Draw(GameTime gameTime)
-        {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            // TODO: Add your drawing code here
-            base.Draw(gameTime);
+            Obstacle obs;
+            switch (name)
+            {
+                case "Scenario1":
+                    obs = new Obstacle(game, spriteBatch, texture, 10, 10, 40, 70, 0.0F);
+                    obs.Enabled = true;
+                    game.Components.Add(obs);
+                    obs = new Obstacle(game, spriteBatch, texture, 150, 90, 30, 80, 0.0F);
+                    game.Components.Add(obs);
+                    break;
+            }
         }
     }
 }

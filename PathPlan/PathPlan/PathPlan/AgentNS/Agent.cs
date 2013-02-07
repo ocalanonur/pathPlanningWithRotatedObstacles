@@ -92,40 +92,32 @@ namespace PathPlan.AgentNS
             // TODO: Add your drawing code here
             // TODO: Add your drawing code here
             Rectangle aPositionAdjusted;
+            spriteBatch.Begin();
+            
             if (!startConfigLocated && !goalConfigLocated)
             {
                 /*
                  * Her iki deðiþkenin false olduðu durumda buraya girilir. Burada baþlangýç ve bitiþ yapýlandýrmalarý girilmemiþtir.
                  */
-                spriteBatch.Begin();
-                aPositionAdjusted = new Rectangle((int)this.config.X + (int)(this.config.Width / 2), (int)this.config.Y + (int)(this.config.Height / 2), (int)this.config.Width, (int)this.config.Height);
-                spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), color, this.config.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
-                spriteBatch.End();
             }
             else if (startConfigLocated && !goalConfigLocated)
             {
                 /*
                  * Burada sadece Agentýn baþlangýç yapýlandýrmasý seçilmiþtir.
                  */
-                spriteBatch.Begin();
                 aPositionAdjusted = new Rectangle((int)startConfig.X + (int)(startConfig.Width / 2), (int)startConfig.Y + (int)(startConfig.Height / 2), (int)startConfig.Width, (int)startConfig.Height);
                 spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), Color.Black, startConfig.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
-                aPositionAdjusted = new Rectangle((int)this.config.X + (int)(this.config.Width / 2), (int)this.config.Y + (int)(this.config.Height / 2), (int)this.config.Width, (int)this.config.Height);
-                spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), color, this.config.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
-                spriteBatch.End();
             }
             else
             {
-                spriteBatch.Begin();
                 aPositionAdjusted = new Rectangle((int)startConfig.X + (int)(startConfig.Width / 2), (int)startConfig.Y + (int)(startConfig.Height / 2), (int)startConfig.Width, (int)startConfig.Height);
                 spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), Color.Black, startConfig.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
                 aPositionAdjusted = new Rectangle((int)goalConfig.X + (int)(goalConfig.Width / 2), (int)goalConfig.Y + (int)(goalConfig.Height / 2), (int)goalConfig.Width, (int)goalConfig.Height);
                 spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), Color.Brown, goalConfig.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
-                aPositionAdjusted = new Rectangle((int)this.config.X + (int)(this.config.Width / 2), (int)this.config.Y + (int)(this.config.Height / 2), (int)this.config.Width, (int)this.config.Height);
-                spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), color, this.config.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
-                spriteBatch.End();
             }
-
+            aPositionAdjusted = new Rectangle((int)this.config.X + (int)(this.config.Width / 2), (int)this.config.Y + (int)(this.config.Height / 2), (int)this.config.Width, (int)this.config.Height);
+            spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), color, this.config.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }

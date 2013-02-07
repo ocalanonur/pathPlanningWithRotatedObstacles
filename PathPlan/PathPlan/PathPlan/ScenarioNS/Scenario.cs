@@ -22,6 +22,7 @@ namespace PathPlan.ScenarioNS
         private SpriteBatch spriteBatch;
         private Texture2D texture;
         public string name;
+        public List<Obstacle> obstacles = new List<Obstacle>();
 
         public Scenario(Game game,SpriteBatch spriteBatch,Texture2D texture,string name)
         {
@@ -41,8 +42,10 @@ namespace PathPlan.ScenarioNS
                 case "Scenario1":
                     obs = new Obstacle(game, spriteBatch, texture, 10, 10, 40, 70, 0.0F);
                     obs.Enabled = true;
+                    obstacles.Add(obs);
                     game.Components.Add(obs);
                     obs = new Obstacle(game, spriteBatch, texture, 150, 90, 30, 80, 0.0F);
+                    obstacles.Add(obs);
                     game.Components.Add(obs);
                     break;
             }

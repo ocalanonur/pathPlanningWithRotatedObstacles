@@ -12,6 +12,7 @@ using PathPlan.ScenarioNS;
 using PathPlan.ObstacleNS;
 using PathPlan.HelperClasses;
 using PathPlan.AgentNS;
+using PathPlan.RoadmapNS;
 
 
 namespace PathPlan
@@ -23,9 +24,11 @@ namespace PathPlan
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SpriteFont font;
 
         Texture2D t;
         Scenario scenario;
+        Roadmap roadmap;
         Agent agent;
 
         public Game1()
@@ -54,11 +57,15 @@ namespace PathPlan
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            font = Content.Load<SpriteFont>("myFont");
             t = Content.Load<Texture2D>("Square");
             scenario = new Scenario(this, spriteBatch, t, "Scenario1");
-            agent = new Agent(this, spriteBatch, t, 0, 0, 20, 20, 0.0F, Color.Yellow);
+            agent = new Agent(this, spriteBatch, t, 0, 0, 20, 60, 0.0F, Color.Yellow);
+            roadmap = new Roadmap(this, graphics, spriteBatch, t, scenario, 100, 4, 20, 60);
+            roadmap.Enabled = true;
             agent.Enabled = true;
             this.Components.Add(agent);
+            this.Components.Add(roadmap);
             // TODO: use this.Content to load your game content here
         }
 
@@ -82,6 +89,8 @@ namespace PathPlan
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
             // TODO: Add your update logic here
+            if ( Keyboard.GetState().IsKeyDown(Keys.A))
+                agent.config.Rotation += 0.5F;
             base.Update(gameTime);
         }
 
@@ -92,7 +101,9 @@ namespace PathPlan
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
+            spriteBatch.Begin();
+            spriteBatch.DrawString(font, agent.config.Rotation.ToString(), new Vector2(90, 90), Color.Gold);
+            spriteBatch.End();
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);

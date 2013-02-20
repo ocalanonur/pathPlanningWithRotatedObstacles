@@ -3,19 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
+using PathPlan.ObstacleNS;
 
 namespace PathPlan.HelperClasses
 {
     public class Configuration
     {
         public FloatRectangle CollisionRectangle;
-        public float Rotation;
+        private float rotation;
+        public float Rotation
+        {
+            get
+            {
+                return rotation;
+            }
+            set
+            {
+                rotation = value % MathHelper.TwoPi;
+            }
+        }
         public Vector2 Origin;
+        public List<Configuration> neighbors = new List<Configuration>();
 
         public Configuration(float x, float y, float width, float height, float Rotation)
         {
             this.CollisionRectangle = new FloatRectangle(x, y, width, height);
-            this.Rotation = Rotation;
+            this.rotation = Rotation;
             Origin = new Vector2(CollisionRectangle.size.X / 2, CollisionRectangle.size.Y / 2);
 
         }
@@ -23,7 +36,7 @@ namespace PathPlan.HelperClasses
         public Configuration(FloatRectangle CollisionRectangle, float Rotation)
         {
             this.CollisionRectangle = CollisionRectangle;
-            this.Rotation = Rotation;
+            this.rotation = Rotation;
             Origin = new Vector2(CollisionRectangle.size.X / 2, CollisionRectangle.size.Y / 2);
 
         }
@@ -169,28 +182,28 @@ namespace PathPlan.HelperClasses
         public Vector2 UpperLeftCorner()
         {
             Vector2 aUpperLeft = new Vector2(CollisionRectangle.Left, CollisionRectangle.Top);
-            aUpperLeft = RotatePoint(aUpperLeft, aUpperLeft + Origin, Rotation);
+            aUpperLeft = RotatePoint(aUpperLeft, aUpperLeft + Origin, rotation);
             return aUpperLeft;
         }
 
         public Vector2 UpperRightCorner()
         {
             Vector2 aUpperRight = new Vector2(CollisionRectangle.Right, CollisionRectangle.Top);
-            aUpperRight = RotatePoint(aUpperRight, aUpperRight + new Vector2(-Origin.X, Origin.Y), Rotation);
+            aUpperRight = RotatePoint(aUpperRight, aUpperRight + new Vector2(-Origin.X, Origin.Y), rotation);
             return aUpperRight;
         }
 
         public Vector2 LowerLeftCorner()
         {
             Vector2 aLowerLeft = new Vector2(CollisionRectangle.Left, CollisionRectangle.Bottom);
-            aLowerLeft = RotatePoint(aLowerLeft, aLowerLeft + new Vector2(Origin.X, -Origin.Y), Rotation);
+            aLowerLeft = RotatePoint(aLowerLeft, aLowerLeft + new Vector2(Origin.X, -Origin.Y), rotation);
             return aLowerLeft;
         }
 
         public Vector2 LowerRightCorner()
         {
             Vector2 aLowerRight = new Vector2(CollisionRectangle.Right, CollisionRectangle.Bottom);
-            aLowerRight = RotatePoint(aLowerRight, aLowerRight + new Vector2(-Origin.X, -Origin.Y), Rotation);
+            aLowerRight = RotatePoint(aLowerRight, aLowerRight + new Vector2(-Origin.X, -Origin.Y), rotation);
             return aLowerRight;
         }
 
@@ -212,6 +225,43 @@ namespace PathPlan.HelperClasses
         public float Height
         {
             get { return CollisionRectangle.size.Y; }
+        }
+
+        /// <summary>
+        /// Bu metod kullanılıyor ise start ve goal arasında hiçbir engelin olmadığı doğrulanmalıdır.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="goal"></param>
+        public bool isConnectable(Configuration goalConfig,List<Obstacle> obstacleList)
+        {
+            Configuration virtualConfig = new Configuration(this.X, this.Y, this.Width, this.Height, this.rotation);
+            Vector2 direction;
+            float distance, currentDistance, currentAngle, normalizeAngle;
+            while (true)
+            {
+                direction = goalConfig.CollisionRectangle.position - virtualConfig.CollisionRectangle.position;
+                direction.Normalize();
+                
+
+                currentDistance = Vector2.Distance(goalConfig.CollisionRectangle.position, virtualConfig.CollisionRectangle.position);
+                currentAngle = goalConfig.rotation - virtualConfig.rotation;
+                normalizeAngle = currentAngle / currentDistance;
+
+                virtualConfig.ChangePosition(direction.X, direction.Y);
+                virtualConfig.rotation += normalizeAngle;
+
+                foreach (Obstacle obs in obstacleList)
+                {
+                    if (virtualConfig.Intersects(obs.config))
+                        return false;
+                }
+                distance = Vector2.Distance(virtualConfig.CollisionRectangle.position, goalConfig.CollisionRectangle.position);
+                if (distance < 1)
+                {
+                    break;
+                }
+            }
+            return true;
         }
     }
 }

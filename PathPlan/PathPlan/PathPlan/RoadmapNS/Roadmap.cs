@@ -41,6 +41,7 @@ namespace PathPlan.RoadmapNS
             this.agentTextureWidth = agentTextureWidth;
             this.agentTextureHeight = agentTextureHeight;
             fillSampleList();
+            connectConfiguration();
         }
 
         public override void Update(GameTime gameTime)
@@ -57,9 +58,17 @@ namespace PathPlan.RoadmapNS
             Rectangle aPositionAdjusted;
             if (drawRoadmap)
             {
+                Texture2D blank = new Texture2D(game.GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
+                blank.SetData(new[] { Color.White });
                 spriteBatch.Begin();
                 foreach (Configuration conf in samples)
                 {
+                    foreach (Configuration nbConf in conf.neighbors)
+                    {
+                        float angle = (float)Math.Atan2(nbConf.CollisionRectangle.position.Y - conf.CollisionRectangle.position.Y, nbConf.CollisionRectangle.position.X - conf.CollisionRectangle.position.X);
+                        float length = Vector2.Distance(conf.CollisionRectangle.position, nbConf.CollisionRectangle.position);
+                        spriteBatch.Draw(blank, new Vector2(conf.CollisionRectangle.position.X + conf.Width/2, conf.CollisionRectangle.position.Y+ conf.Height/2), null, Color.Black, angle, Vector2.Zero, new Vector2(length, (float)1), SpriteEffects.None, 0);
+                    }
                     aPositionAdjusted = new Rectangle((int)conf.X + (int)(conf.Width / 2), (int)conf.Y + (int)(conf.Height / 2), (int)conf.Width, (int)conf.Height);
                     spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), Color.Green, conf.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
                 }
@@ -70,7 +79,7 @@ namespace PathPlan.RoadmapNS
 
         private void fillSampleList()
         {
-            for (sbyte i = 0; i < numberOfSample; i++)
+            for (int i = 0; i < numberOfSample; i++)
                 samples.Add(getFreeConfiguration());
         }
 
@@ -82,7 +91,7 @@ namespace PathPlan.RoadmapNS
             bool continueSearch = true;
             do
             {
-                conf = new Configuration(rand.Next(0, (int)(displayWidth - agentTextureWidth)), rand.Next(0, (int)(displayHeight - agentTextureHeight)), agentTextureWidth, agentTextureHeight, (float)rand.NextDouble()*6);
+                conf = new Configuration(rand.Next(0, (int)(displayWidth - agentTextureWidth)), rand.Next(0, (int)(displayHeight - agentTextureHeight)), agentTextureWidth, agentTextureHeight, (float)rand.NextDouble()*MathHelper.TwoPi);
                 continueSearch = false;
                 foreach (Obstacle obs in scenario.obstacles)
                 {
@@ -94,6 +103,22 @@ namespace PathPlan.RoadmapNS
                 }
             } while (continueSearch);
             return conf;
+        }
+
+        private void connectConfiguration()
+        {
+            foreach (Configuration c1 in samples)
+            {
+                foreach (Configuration c2 in samples)
+                {
+                    if (c1 == c2)
+                        continue;
+                    if (c1.isConnectable(c2, scenario.obstacles))
+                    {
+                        c1.neighbors.Add(c2);
+                    }
+                }
+            }
         }
     }
 }

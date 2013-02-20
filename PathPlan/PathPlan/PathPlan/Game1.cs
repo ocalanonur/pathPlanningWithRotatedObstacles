@@ -31,6 +31,8 @@ namespace PathPlan
         Roadmap roadmap;
         Agent agent;
 
+        
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -59,13 +61,15 @@ namespace PathPlan
             spriteBatch = new SpriteBatch(GraphicsDevice);
             font = Content.Load<SpriteFont>("myFont");
             t = Content.Load<Texture2D>("Square");
-            scenario = new Scenario(this, spriteBatch, t, "Scenario1");
+            scenario = new Scenario(this, spriteBatch, t, "Scenario2");
             agent = new Agent(this, spriteBatch, t, 0, 0, 20, 60, 0.0F, Color.Yellow);
-            roadmap = new Roadmap(this, graphics, spriteBatch, t, scenario, 100, 4, 20, 60);
+            roadmap = new Roadmap(this, graphics, spriteBatch, t, scenario, 2, 1, 20, 60);
             roadmap.Enabled = true;
             agent.Enabled = true;
             this.Components.Add(agent);
             this.Components.Add(roadmap);
+
+            
             // TODO: use this.Content to load your game content here
         }
 
@@ -89,8 +93,6 @@ namespace PathPlan
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
             // TODO: Add your update logic here
-            if ( Keyboard.GetState().IsKeyDown(Keys.A))
-                agent.config.Rotation += 0.5F;
             base.Update(gameTime);
         }
 

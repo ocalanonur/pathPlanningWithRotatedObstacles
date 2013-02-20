@@ -31,6 +31,9 @@ namespace PathPlan.AgentNS
         private bool goalConfigLocated = false;
         private MouseState mauseState;
 
+
+        Configuration c1, c2;
+
         public Agent(Game game, SpriteBatch spriteBatch, Texture2D texture, float x, float y, float width, float height, float theInitialRotation, Color color)
             : base(game)
         {
@@ -39,6 +42,9 @@ namespace PathPlan.AgentNS
             this.texture = texture;
             config = new Configuration(new FloatRectangle(new Vector2(x, y), new Vector2(width, height)), theInitialRotation);
             this.color = color;
+
+            c1 = new Configuration(20, 20, 30, 70, 0);
+            c2 = new Configuration(200, 300, 30, 70, 45);
         }
 
         /// <summary>
@@ -59,10 +65,14 @@ namespace PathPlan.AgentNS
         public override void Update(GameTime gameTime)
         {
             // TODO: Add your update code here
+            
+
             mauseState = Mouse.GetState();
             if (!startConfigLocated && !goalConfigLocated)
             {
                 config = new Configuration(mauseState.X, mauseState.Y, config.Width, config.Height, config.Rotation);
+                if (Keyboard.GetState().IsKeyDown(Keys.T))
+                    config.Rotation += 0.1F;
                 if (mauseState.LeftButton == ButtonState.Pressed)
                 {
                     startConfigLocated = true;
@@ -72,12 +82,24 @@ namespace PathPlan.AgentNS
             else if (startConfigLocated && !goalConfigLocated)
             {
                 config = new Configuration(mauseState.X, mauseState.Y, config.Width, config.Height, config.Rotation);
+                if (Keyboard.GetState().IsKeyDown(Keys.T))
+                    config.Rotation += 0.1F;
                 if (mauseState.RightButton == ButtonState.Pressed)
                 {
                     goalConfigLocated = true;
                     goalConfig = new Configuration(mauseState.X, mauseState.Y, config.Width, config.Height, config.Rotation);
                     config = new Configuration(startConfig.X, startConfig.Y, startConfig.Width, startConfig.Height, startConfig.Rotation);
                 }
+            }
+            else
+            {
+                Vector2 yon = goalConfig.CollisionRectangle.position - config.CollisionRectangle.position;
+                float mesafe = Vector2.Distance(goalConfig.CollisionRectangle.position, config.CollisionRectangle.position);
+                float aci = goalConfig.Rotation - config.Rotation;
+                float donusNormalize = aci / mesafe;
+                yon.Normalize();
+                this.config.ChangePosition(yon.X, yon.Y);
+                this.config.Rotation += donusNormalize;
             }
             base.Update(gameTime);
         }

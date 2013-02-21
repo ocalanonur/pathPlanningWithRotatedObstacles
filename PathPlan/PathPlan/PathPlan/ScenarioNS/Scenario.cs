@@ -62,6 +62,9 @@ namespace PathPlan.ScenarioNS
                     obs = new Obstacle(game, spriteBatch, texture, 530, 200, 50, 250, 0.2F);
                     obstacles.Add(obs);
                     game.Components.Add(obs);
+                    obs = new Obstacle(game, spriteBatch, texture, 20, 50, 150, 60, 0.7F);
+                    obstacles.Add(obs);
+                    game.Components.Add(obs);
                     break;
             }
         }

@@ -63,7 +63,7 @@ namespace PathPlan
             t = Content.Load<Texture2D>("Square");
             scenario = new Scenario(this, spriteBatch, t, "Scenario2");
             agent = new Agent(this, spriteBatch, t, 0, 0, 20, 60, 0.0F, Color.Yellow);
-            roadmap = new Roadmap(this, graphics, spriteBatch, t, scenario, 2, 1, 20, 60);
+            roadmap = new Roadmap(this, graphics, spriteBatch, t, scenario, 500, 1, 20, 60);
             roadmap.Enabled = true;
             agent.Enabled = true;
             this.Components.Add(agent);

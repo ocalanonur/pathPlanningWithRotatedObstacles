@@ -241,8 +241,8 @@ namespace PathPlan.HelperClasses
             {
                 direction = goalConfig.CollisionRectangle.position - virtualConfig.CollisionRectangle.position;
                 direction.Normalize();
-                
-
+                if (float.IsNaN(direction.X))       // Burada bir bug var. İf ile çözüldü düzelt.
+                    return false;
                 currentDistance = Vector2.Distance(goalConfig.CollisionRectangle.position, virtualConfig.CollisionRectangle.position);
                 currentAngle = goalConfig.rotation - virtualConfig.rotation;
                 normalizeAngle = currentAngle / currentDistance;
@@ -262,6 +262,47 @@ namespace PathPlan.HelperClasses
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// Bu metod yapılandırmanın komşuları arasında en uzak olan komşu yapılandırmayı listeden kaldırır. Mesafe için sadece uzaklık değerine bakılır. Açı hesaba katılmaz.
+        /// </summary>
+        public void removeFarthestNeighborConfiguration()
+        {
+            float maxDistance = float.MinValue;
+            float currentDistance;
+            int currentIndex = 0;
+            int maxDistanceIndex = -1;
+            foreach (Configuration neighborConf in neighbors)
+            {
+                currentDistance = Vector2.Distance(this.CollisionRectangle.position, neighborConf.CollisionRectangle.position);
+                if (maxDistance < currentDistance )
+                {
+                    maxDistance = currentDistance;
+                    maxDistanceIndex = currentIndex;
+                }
+                currentIndex++;
+            }
+            neighbors.RemoveAt(maxDistanceIndex);
+        }
+
+        public int getFarthestNeighborConfIndex()
+        {
+            float maxDistance = float.MinValue;
+            float currentDistance;
+            int currentIndex = -1;
+            int maxDistanceIndex = -1;
+            foreach (Configuration neighborConf in neighbors)
+            {
+                currentIndex++;
+                currentDistance = Vector2.Distance(this.CollisionRectangle.position, neighborConf.CollisionRectangle.position);
+                if (maxDistance < currentDistance)
+                {
+                    maxDistance = currentDistance;
+                    maxDistanceIndex = currentIndex;
+                }
+            }
+            return maxDistanceIndex;
         }
     }
 }

@@ -63,14 +63,15 @@ namespace PathPlan.RoadmapNS
                 spriteBatch.Begin();
                 foreach (Configuration conf in samples)
                 {
+                    aPositionAdjusted = new Rectangle((int)conf.X + (int)(conf.Width / 2), (int)conf.Y + (int)(conf.Height / 2), (int)conf.Width, (int)conf.Height);
+                    spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), Color.Green, conf.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
                     foreach (Configuration nbConf in conf.neighbors)
                     {
                         float angle = (float)Math.Atan2(nbConf.CollisionRectangle.position.Y - conf.CollisionRectangle.position.Y, nbConf.CollisionRectangle.position.X - conf.CollisionRectangle.position.X);
                         float length = Vector2.Distance(conf.CollisionRectangle.position, nbConf.CollisionRectangle.position);
                         spriteBatch.Draw(blank, new Vector2(conf.CollisionRectangle.position.X + conf.Width/2, conf.CollisionRectangle.position.Y+ conf.Height/2), null, Color.Black, angle, Vector2.Zero, new Vector2(length, (float)1), SpriteEffects.None, 0);
                     }
-                    aPositionAdjusted = new Rectangle((int)conf.X + (int)(conf.Width / 2), (int)conf.Y + (int)(conf.Height / 2), (int)conf.Width, (int)conf.Height);
-                    spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), Color.Green, conf.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
+
                 }
                 spriteBatch.End();
             }
@@ -111,11 +112,24 @@ namespace PathPlan.RoadmapNS
             {
                 foreach (Configuration c2 in samples)
                 {
-                    if (c1 == c2)
+                    if (c1 == c2)   // Eğer yapılandırmalar aynı ise birbirine bağlanmaz.
                         continue;
-                    if (c1.isConnectable(c2, scenario.obstacles))
+                    if (c1.neighbors.Count < depth) // Eğer eklenmiş komşu yapılandırma sayısı henüz depth değerine ulaşmamışsa...
                     {
-                        c1.neighbors.Add(c2);
+                        if (c1.isConnectable(c2, scenario.obstacles))
+                        {
+                            c1.neighbors.Add(c2);
+                        }
+                    }
+                    else    // Komşu sayısı sınırına gelinmiş. Ama daha yakın komşu eklenmesi gerekiyor. En uzak komşu çıkarılacak.
+                    {
+                        float neighborDistance = Vector2.Distance(c1.CollisionRectangle.position, c1.neighbors[c1.getFarthestNeighborConfIndex()].CollisionRectangle.position);
+                        float newConfDistance = Vector2.Distance(c1.CollisionRectangle.position, c2.CollisionRectangle.position);
+                        if ((newConfDistance < neighborDistance) && c1.isConnectable(c2, scenario.obstacles))
+                        {
+                            c1.removeFarthestNeighborConfiguration();
+                            c1.neighbors.Add(c2);
+                        }
                     }
                 }
             }

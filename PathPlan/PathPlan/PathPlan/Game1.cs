@@ -13,6 +13,7 @@ using PathPlan.ObstacleNS;
 using PathPlan.HelperClasses;
 using PathPlan.AgentNS;
 using PathPlan.RoadmapNS;
+using PathPlan.HelperClasses.ShortestPathAlgorithm;
 
 
 namespace PathPlan
@@ -30,6 +31,7 @@ namespace PathPlan
         Scenario scenario;
         Roadmap roadmap;
         Agent agent;
+        Dijkstra dijsktra;
 
         
 
@@ -62,13 +64,15 @@ namespace PathPlan
             font = Content.Load<SpriteFont>("myFont");
             t = Content.Load<Texture2D>("Square");
             scenario = new Scenario(this, spriteBatch, t, "Scenario2");
-            agent = new Agent(this, spriteBatch, t, 0, 0, 20, 60, 0.0F, Color.Yellow);
-            roadmap = new Roadmap(this, graphics, spriteBatch, t, scenario, 500, 1, 20, 60);
+            roadmap = new Roadmap(this, graphics, spriteBatch, t, scenario, 100, 20, 20, 60);
+            dijsktra = new Dijkstra(roadmap);
+            agent = new Agent(this, spriteBatch, t, 0, 0, 20, 60, 0.0F, Color.Yellow,dijsktra);
+            
+            
             roadmap.Enabled = true;
             agent.Enabled = true;
             this.Components.Add(agent);
             this.Components.Add(roadmap);
-
             
             // TODO: use this.Content to load your game content here
         }
@@ -103,9 +107,9 @@ namespace PathPlan
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin();
-            spriteBatch.DrawString(font, agent.config.Rotation.ToString(), new Vector2(90, 90), Color.Gold);
-            spriteBatch.End();
+            //spriteBatch.Begin();
+            //spriteBatch.DrawString(font, agent.config.Rotation.ToString(), new Vector2(90, 90), Color.Gold);
+            //spriteBatch.End();          
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);

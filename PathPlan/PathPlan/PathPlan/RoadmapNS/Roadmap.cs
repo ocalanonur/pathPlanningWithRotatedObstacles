@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace PathPlan.RoadmapNS
 {
-    class Roadmap : Microsoft.Xna.Framework.DrawableGameComponent
+    public class Roadmap : Microsoft.Xna.Framework.DrawableGameComponent
     {
         public int numberOfSample;
         public int depth;
@@ -69,7 +69,7 @@ namespace PathPlan.RoadmapNS
                     {
                         float angle = (float)Math.Atan2(nbConf.CollisionRectangle.position.Y - conf.CollisionRectangle.position.Y, nbConf.CollisionRectangle.position.X - conf.CollisionRectangle.position.X);
                         float length = Vector2.Distance(conf.CollisionRectangle.position, nbConf.CollisionRectangle.position);
-                        spriteBatch.Draw(blank, new Vector2(conf.CollisionRectangle.position.X + conf.Width/2, conf.CollisionRectangle.position.Y+ conf.Height/2), null, Color.Black, angle, Vector2.Zero, new Vector2(length, (float)1), SpriteEffects.None, 0);
+                        spriteBatch.Draw(blank, new Vector2(conf.CollisionRectangle.position.X + conf.Width/2, conf.CollisionRectangle.position.Y+ conf.Height/2), null, Color.White, angle, Vector2.Zero, new Vector2(length, (float)1), SpriteEffects.None, 0);
                     }
 
                 }
@@ -123,16 +123,22 @@ namespace PathPlan.RoadmapNS
                     }
                     else    // Komşu sayısı sınırına gelinmiş. Ama daha yakın komşu eklenmesi gerekiyor. En uzak komşu çıkarılacak.
                     {
-                        float neighborDistance = Vector2.Distance(c1.CollisionRectangle.position, c1.neighbors[c1.getFarthestNeighborConfIndex()].CollisionRectangle.position);
+                        int farthestIndex = c1.getFarthestNeighborConfIndex();
+                        float neighborDistance = Vector2.Distance(c1.CollisionRectangle.position, c1.neighbors[farthestIndex].CollisionRectangle.position);
                         float newConfDistance = Vector2.Distance(c1.CollisionRectangle.position, c2.CollisionRectangle.position);
-                        if ((newConfDistance < neighborDistance) && c1.isConnectable(c2, scenario.obstacles))
+                        if (newConfDistance < neighborDistance)
                         {
-                            c1.removeFarthestNeighborConfiguration();
-                            c1.neighbors.Add(c2);
+                            if (c1.isConnectable(c2, scenario.obstacles))
+                            {
+                                c1.neighbors.RemoveAt(farthestIndex);
+                                c1.neighbors.Add(c2);
+                            }
                         }
                     }
                 }
             }
         }
+
+
     }
 }

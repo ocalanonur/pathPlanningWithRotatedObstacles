@@ -25,6 +25,12 @@ namespace PathPlan.HelperClasses
         public Vector2 Origin;
         public List<Configuration> neighbors = new List<Configuration>();
 
+        #region DijkstraVariables
+        public Configuration dijkstraParent = null;
+        public float dijkstraDistance = float.MaxValue;
+        public bool dijkstraCompleted = false;
+        #endregion
+
         public Configuration(float x, float y, float width, float height, float Rotation)
         {
             this.CollisionRectangle = new FloatRectangle(x, y, width, height);
@@ -271,17 +277,17 @@ namespace PathPlan.HelperClasses
         {
             float maxDistance = float.MinValue;
             float currentDistance;
-            int currentIndex = 0;
+            int currentIndex = -1;
             int maxDistanceIndex = -1;
             foreach (Configuration neighborConf in neighbors)
             {
+                currentIndex++;
                 currentDistance = Vector2.Distance(this.CollisionRectangle.position, neighborConf.CollisionRectangle.position);
                 if (maxDistance < currentDistance )
                 {
                     maxDistance = currentDistance;
                     maxDistanceIndex = currentIndex;
                 }
-                currentIndex++;
             }
             neighbors.RemoveAt(maxDistanceIndex);
         }

@@ -111,6 +111,7 @@
     <Compile Include="HelperClasses\Configuration.cs" />
     <Compile Include="HelperClasses\FloatRectangle.cs" />
     <Compile Include="HelperClasses\RotatedRectangle.cs" />
+    <Compile Include="HelperClasses\ShortestPathAlgorithm\Dijkstra.cs" />
     <Compile Include="ObstacleNS\Obstacle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />

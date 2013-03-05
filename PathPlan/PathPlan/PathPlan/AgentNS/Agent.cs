@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using PathPlan.HelperClasses;
+using PathPlan.HelperClasses.ShortestPathAlgorithm;
 
 
 namespace PathPlan.AgentNS
@@ -31,10 +32,10 @@ namespace PathPlan.AgentNS
         private bool goalConfigLocated = false;
         private MouseState mauseState;
 
+        private Dijkstra dijkstra;
 
-        Configuration c1, c2;
 
-        public Agent(Game game, SpriteBatch spriteBatch, Texture2D texture, float x, float y, float width, float height, float theInitialRotation, Color color)
+        public Agent(Game game, SpriteBatch spriteBatch, Texture2D texture, float x, float y, float width, float height, float theInitialRotation, Color color,Dijkstra dijkstra)
             : base(game)
         {
             this.game = game;
@@ -42,9 +43,7 @@ namespace PathPlan.AgentNS
             this.texture = texture;
             config = new Configuration(new FloatRectangle(new Vector2(x, y), new Vector2(width, height)), theInitialRotation);
             this.color = color;
-
-            c1 = new Configuration(20, 20, 30, 70, 0);
-            c2 = new Configuration(200, 300, 30, 70, 45);
+            this.dijkstra = dijkstra;
         }
 
         /// <summary>
@@ -77,6 +76,7 @@ namespace PathPlan.AgentNS
                 {
                     startConfigLocated = true;
                     startConfig = new Configuration(mauseState.X, mauseState.Y, config.Width, config.Height, config.Rotation);
+                    dijkstra.startConfig = startConfig;
                 }
             }
             else if (startConfigLocated && !goalConfigLocated)
@@ -88,18 +88,36 @@ namespace PathPlan.AgentNS
                 {
                     goalConfigLocated = true;
                     goalConfig = new Configuration(mauseState.X, mauseState.Y, config.Width, config.Height, config.Rotation);
+                    dijkstra.goalConfig = goalConfig;
+                    dijkstra.addStartAndGoalConfigtoConnectedRoadmapList();
+                    dijkstra.getShortestPath();
                     config = new Configuration(startConfig.X, startConfig.Y, startConfig.Width, startConfig.Height, startConfig.Rotation);
                 }
             }
             else
             {
-                Vector2 yon = goalConfig.CollisionRectangle.position - config.CollisionRectangle.position;
-                float mesafe = Vector2.Distance(goalConfig.CollisionRectangle.position, config.CollisionRectangle.position);
-                float aci = goalConfig.Rotation - config.Rotation;
-                float donusNormalize = aci / mesafe;
-                yon.Normalize();
-                this.config.ChangePosition(yon.X, yon.Y);
-                this.config.Rotation += donusNormalize;
+                if (dijkstra.stations.Count != 0)
+                {
+                    Vector2 yon = dijkstra.stations.ElementAt(0).CollisionRectangle.position - config.CollisionRectangle.position;
+                    float mesafe = Vector2.Distance(dijkstra.stations.ElementAt(0).CollisionRectangle.position, config.CollisionRectangle.position);
+                    float aci = dijkstra.stations.ElementAt(0).Rotation - config.Rotation;
+                    float donusNormalize = aci / mesafe;
+                    yon.Normalize();
+                    this.config.ChangePosition(yon.X, yon.Y);
+                    this.config.Rotation += donusNormalize;
+                    if (Vector2.Distance(dijkstra.stations.ElementAt(0).CollisionRectangle.position, config.CollisionRectangle.position) < 1)
+                    {
+                        config = dijkstra.stations.ElementAt(0);
+                        dijkstra.stations.Dequeue();
+                    }
+                }
+                
+                //float mesafe = Vector2.Distance(goalConfig.CollisionRectangle.position, config.CollisionRectangle.position);
+                //float aci = goalConfig.Rotation - config.Rotation;
+                //float donusNormalize = aci / mesafe;
+                //yon.Normalize();
+                //this.config.ChangePosition(yon.X, yon.Y);
+                //this.config.Rotation += donusNormalize;
             }
             base.Update(gameTime);
         }

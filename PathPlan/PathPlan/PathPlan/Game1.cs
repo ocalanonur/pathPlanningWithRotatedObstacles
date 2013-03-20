@@ -64,7 +64,7 @@ namespace PathPlan
             font = Content.Load<SpriteFont>("myFont");
             t = Content.Load<Texture2D>("Square");
             scenario = new Scenario(this, spriteBatch, t, "Scenario2");
-            roadmap = new Roadmap(this, graphics, spriteBatch, t, scenario, 100, 20, 20, 60);
+            roadmap = new Roadmap(this, graphics, spriteBatch, t, scenario, 10, 3, 20, 60);
             dijsktra = new Dijkstra(roadmap);
             agent = new Agent(this, spriteBatch, t, 0, 0, 20, 60, 0.0F, Color.Yellow,dijsktra);
             

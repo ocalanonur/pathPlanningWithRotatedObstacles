@@ -107,7 +107,7 @@ namespace PathPlan.AgentNS
                     this.config.Rotation += donusNormalize;
                     if (Vector2.Distance(dijkstra.stations.ElementAt(0).CollisionRectangle.position, config.CollisionRectangle.position) < 1)
                     {
-                        config = dijkstra.stations.ElementAt(0);
+                        //config = dijkstra.stations.ElementAt(0);
                         dijkstra.stations.Dequeue();
                     }
                 }

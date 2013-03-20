@@ -40,7 +40,7 @@ namespace PathPlan.RoadmapNS
             this.depth = depth;
             this.agentTextureWidth = agentTextureWidth;
             this.agentTextureHeight = agentTextureHeight;
-            fillSampleList();
+            fillSampleListRandom();
             connectConfiguration();
         }
 
@@ -78,21 +78,28 @@ namespace PathPlan.RoadmapNS
             base.Draw(gameTime);
         }
 
-        private void fillSampleList()
+        private void fillSampleListRandom()
         {
             for (int i = 0; i < numberOfSample; i++)
                 samples.Add(getFreeConfiguration());
         }
 
+        private void fillSampleListAroundObstacles()
+        {
+            //Configuration conf;
+            //for (int i = 0; i < numberOfSample; i++)
+            //{
+            //    conf = getRandomConfig();
+            //}
+        }
+
         private Configuration getFreeConfiguration()
         {
-            int displayWidth = graphicDevice.PreferredBackBufferWidth;
-            int displayHeight = graphicDevice.PreferredBackBufferHeight;
             Configuration conf;
             bool continueSearch = true;
             do
             {
-                conf = new Configuration(rand.Next(0, (int)(displayWidth - agentTextureWidth)), rand.Next(0, (int)(displayHeight - agentTextureHeight)), agentTextureWidth, agentTextureHeight, (float)rand.NextDouble()*MathHelper.TwoPi);
+                conf = getRandomConfig();
                 continueSearch = false;
                 foreach (Obstacle obs in scenario.obstacles)
                 {
@@ -119,6 +126,7 @@ namespace PathPlan.RoadmapNS
                         if (c1.isConnectable(c2, scenario.obstacles))
                         {
                             c1.neighbors.Add(c2);
+                            c2.neighbors.Add(c1);   // SOnradan
                         }
                     }
                     else    // Komşu sayısı sınırına gelinmiş. Ama daha yakın komşu eklenmesi gerekiyor. En uzak komşu çıkarılacak.
@@ -130,8 +138,10 @@ namespace PathPlan.RoadmapNS
                         {
                             if (c1.isConnectable(c2, scenario.obstacles))
                             {
+                                c1.neighbors[farthestIndex].neighbors.Remove(c1);   /// Sonradan
                                 c1.neighbors.RemoveAt(farthestIndex);
                                 c1.neighbors.Add(c2);
+                                c2.neighbors.Add(c1);   /// Sonradan
                             }
                         }
                     }
@@ -139,6 +149,12 @@ namespace PathPlan.RoadmapNS
             }
         }
 
+        private Configuration getRandomConfig()
+        {
+            int displayWidth = graphicDevice.PreferredBackBufferWidth;
+            int displayHeight = graphicDevice.PreferredBackBufferHeight;
+            return new Configuration(rand.Next(0, (int)(displayWidth - agentTextureWidth)), rand.Next(0, (int)(displayHeight - agentTextureHeight)), agentTextureWidth, agentTextureHeight, (float)rand.NextDouble() * MathHelper.TwoPi);
+        }
 
     }
 }

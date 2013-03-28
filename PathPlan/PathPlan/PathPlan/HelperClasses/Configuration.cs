@@ -25,6 +25,7 @@ namespace PathPlan.HelperClasses
         public Vector2 Origin;
         public List<Configuration> neighbors = new List<Configuration>();
 
+
         #region DijkstraVariables
         public Configuration dijkstraParent = null;
         public float dijkstraDistance = float.MaxValue;
@@ -301,7 +302,8 @@ namespace PathPlan.HelperClasses
             foreach (Configuration neighborConf in neighbors)
             {
                 currentIndex++;
-                currentDistance = Vector2.Distance(this.CollisionRectangle.position, neighborConf.CollisionRectangle.position);
+                //currentDistance = Vector2.Distance(this.CollisionRectangle.position, neighborConf.CollisionRectangle.position);
+                currentDistance = distance(neighborConf);
                 if (maxDistance < currentDistance)
                 {
                     maxDistance = currentDistance;
@@ -309,6 +311,25 @@ namespace PathPlan.HelperClasses
                 }
             }
             return maxDistanceIndex;
+        }
+
+        public bool isOnObstacle(List<Obstacle> obsList)
+        {
+            foreach (Obstacle obs in obsList)
+            {
+                if (obs.config.Intersects(this))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public float distance(Configuration to)
+        {
+            float xyDistance = Vector2.Distance(this.CollisionRectangle.position, to.CollisionRectangle.position);
+            float rotationDistance = (float)Math.Pow((double)(to.rotation-this.rotation)%180,2);
+            return (float)Math.Sqrt(Math.Pow(xyDistance,2)+Math.Pow(rotationDistance,2));
         }
     }
 }

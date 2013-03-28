@@ -19,7 +19,7 @@ namespace PathPlan.AgentNS
     /// </summary>
     public class Agent : Microsoft.Xna.Framework.DrawableGameComponent
     {
-        private Game game;
+        private Game1 game;
         private SpriteBatch spriteBatch;
         private Texture2D texture;
         public Configuration config;
@@ -35,7 +35,7 @@ namespace PathPlan.AgentNS
         private Dijkstra dijkstra;
 
 
-        public Agent(Game game, SpriteBatch spriteBatch, Texture2D texture, float x, float y, float width, float height, float theInitialRotation, Color color,Dijkstra dijkstra)
+        public Agent(Game1 game, SpriteBatch spriteBatch, Texture2D texture, float x, float y, float width, float height, float theInitialRotation, Color color,Dijkstra dijkstra)
             : base(game)
         {
             this.game = game;
@@ -44,6 +44,17 @@ namespace PathPlan.AgentNS
             config = new Configuration(new FloatRectangle(new Vector2(x, y), new Vector2(width, height)), theInitialRotation);
             this.color = color;
             this.dijkstra = dijkstra;
+        }
+
+        public Agent(Game1 game, SpriteBatch spriteBatch, Texture2D texture, float x, float y, float width, float height, float theInitialRotation)
+            : base(game)
+        {
+            this.game = game;
+            this.spriteBatch = spriteBatch;
+            this.texture = texture;
+            config = new Configuration(new FloatRectangle(new Vector2(x, y), new Vector2(width, height)), theInitialRotation);
+            this.color = Color.Chocolate;
+            this.dijkstra = null;
         }
 
         /// <summary>
@@ -67,6 +78,9 @@ namespace PathPlan.AgentNS
             
 
             mauseState = Mouse.GetState();
+            if (mauseState.X < 0 || mauseState.Y < 0 || mauseState.X > game.graphics.PreferredBackBufferWidth || mauseState.Y > game.graphics.PreferredBackBufferHeight)
+                return; // Mause pencere aralýðý dýþýnda...
+
             if (!startConfigLocated && !goalConfigLocated)
             {
                 config = new Configuration(mauseState.X, mauseState.Y, config.Width, config.Height, config.Rotation);

@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 using PathPlan.ScenarioNS;
 using PathPlan.ObstacleNS;
 using Microsoft.Xna.Framework.Input;
+using PathPlan.AgentNS;
 
 namespace PathPlan.RoadmapNS
 {
@@ -17,18 +18,23 @@ namespace PathPlan.RoadmapNS
         public int depth;
         public List<Configuration> samples = new List<Configuration>();
 
-        private Game game;
+        private string samplingMethod = "AroundObstacles";
+
+        private Game1 game;
         private GraphicsDeviceManager graphicDevice;
         private SpriteBatch spriteBatch;
         private Texture2D texture;
         private Scenario scenario;
         private Random rand = new Random();
 
+        private int displayWidth;
+        private int displayHeight;
+
         private float agentTextureWidth;
         private float agentTextureHeight;
         private bool drawRoadmap = false;
 
-        public Roadmap(Game game,GraphicsDeviceManager graphicDevice,SpriteBatch spriteBatch,Texture2D texture,Scenario scenario, int numberOfSample, int depth, float agentTextureWidth, float agentTextureHeight)
+        public Roadmap(Game1 game,GraphicsDeviceManager graphicDevice,SpriteBatch spriteBatch,Texture2D texture,Scenario scenario, int numberOfSample, int depth, float agentTextureWidth, float agentTextureHeight)
             : base(game)
         {
             this.game = game;
@@ -40,7 +46,9 @@ namespace PathPlan.RoadmapNS
             this.depth = depth;
             this.agentTextureWidth = agentTextureWidth;
             this.agentTextureHeight = agentTextureHeight;
-            fillSampleListRandom();
+            displayWidth = graphicDevice.PreferredBackBufferWidth;
+            displayHeight = graphicDevice.PreferredBackBufferHeight;
+            fillSampleListRandom(samplingMethod);     // "Random" , "AroundObstacles" , "OnlyAroundObstacles"
             connectConfiguration();
         }
 
@@ -78,19 +86,95 @@ namespace PathPlan.RoadmapNS
             base.Draw(gameTime);
         }
 
-        private void fillSampleListRandom()
+        private void fillSampleListRandom( string method )
         {
-            for (int i = 0; i < numberOfSample; i++)
-                samples.Add(getFreeConfiguration());
+            Configuration conf;
+            switch (method)
+            {
+                case "Random":
+                    for (int i = 0; i < numberOfSample; i++)
+                        samples.Add(getFreeConfiguration());
+                    break;
+                case "AroundObstacles":
+                    for (int i = 0; i < numberOfSample; i++)
+                    {
+                        conf = getRandomConfig();
+                        Agent a = new Agent(game, spriteBatch, texture, conf.X, conf.Y, conf.Width, conf.Height, conf.Rotation);
+                        if (a.config.isOnObstacle(scenario.obstacles))
+                        {
+                            Vector2 randomDirection;
+                            do
+                            {
+                                randomDirection = new Vector2((float)rand.NextDouble() * 2 - 1, (float)rand.NextDouble() * 2 - 1);
+                            } while (randomDirection.X == 0 && randomDirection.Y == 0);
+
+                            do
+                            {
+                                a.config.ChangePosition(randomDirection.X, randomDirection.Y);
+                            } while (a.config.isOnObstacle(scenario.obstacles));
+
+                            samples.Add(a.config);
+                        }
+                        else
+                            samples.Add(getFreeConfiguration());    // Eğer sample boşlukta çıktıysa direk alınır.
+                    }
+                    break;
+                case "OnlyAroundObstacles":
+                    for (int i = 0; i < numberOfSample; i++)
+                    {
+                        conf = getRandomConfig();
+                        Agent a = new Agent(game, spriteBatch, texture, conf.X, conf.Y, conf.Width, conf.Height, conf.Rotation);
+                        if (a.config.isOnObstacle(scenario.obstacles))
+                        {
+                            Vector2 randomDirection;
+                            do
+                            {
+
+                                randomDirection = new Vector2((float)rand.NextDouble() * 2 - 1, (float)rand.NextDouble() * 2 - 1);
+                            } while (randomDirection.X == 0 && randomDirection.Y == 0);
+
+                            do
+                            {
+                                a.config.ChangePosition(randomDirection.X, randomDirection.Y);
+                            } while (a.config.isOnObstacle(scenario.obstacles));
+
+                            samples.Add(a.config);
+                        }
+                    }
+                    break;
+            }
         }
 
         private void fillSampleListAroundObstacles()
         {
-            //Configuration conf;
-            //for (int i = 0; i < numberOfSample; i++)
-            //{
-            //    conf = getRandomConfig();
-            //}
+            Configuration conf;
+            for (int i = 0; i < numberOfSample; i++)
+            {
+                conf = getRandomConfig();
+                Agent a = new Agent(game, spriteBatch, texture, conf.X, conf.Y, conf.Width, conf.Height, conf.Rotation);
+                if (a.config.isOnObstacle(scenario.obstacles))
+                {
+                    Vector2 randomDirection;
+                    do
+                    {
+
+                        randomDirection = new Vector2((float)rand.NextDouble() * 2 - 1, (float)rand.NextDouble() * 2 - 1);
+                    } while (randomDirection.X == 0 && randomDirection.Y == 0);
+
+                    do
+                    {
+                        a.config.ChangePosition(randomDirection.X, randomDirection.Y);
+                    } while (a.config.isOnObstacle(scenario.obstacles));
+
+                    samples.Add(a.config);
+
+                }
+                else
+                {
+                    // Eğer sample boşlukta çıktıysa direk alınır.
+                    //samples.Add(getFreeConfiguration());
+                }
+            }
         }
 
         private Configuration getFreeConfiguration()
@@ -132,8 +216,10 @@ namespace PathPlan.RoadmapNS
                     else    // Komşu sayısı sınırına gelinmiş. Ama daha yakın komşu eklenmesi gerekiyor. En uzak komşu çıkarılacak.
                     {
                         int farthestIndex = c1.getFarthestNeighborConfIndex();
-                        float neighborDistance = Vector2.Distance(c1.CollisionRectangle.position, c1.neighbors[farthestIndex].CollisionRectangle.position);
-                        float newConfDistance = Vector2.Distance(c1.CollisionRectangle.position, c2.CollisionRectangle.position);
+                        //float neighborDistance = Vector2.Distance(c1.CollisionRectangle.position, c1.neighbors[farthestIndex].CollisionRectangle.position);
+                        //float newConfDistance = Vector2.Distance(c1.CollisionRectangle.position, c2.CollisionRectangle.position);
+                        float neighborDistance = c1.distance(c1.neighbors[farthestIndex]);
+                        float newConfDistance = c1.distance(c2);
                         if (newConfDistance < neighborDistance)
                         {
                             if (c1.isConnectable(c2, scenario.obstacles))
@@ -151,8 +237,6 @@ namespace PathPlan.RoadmapNS
 
         private Configuration getRandomConfig()
         {
-            int displayWidth = graphicDevice.PreferredBackBufferWidth;
-            int displayHeight = graphicDevice.PreferredBackBufferHeight;
             return new Configuration(rand.Next(0, (int)(displayWidth - agentTextureWidth)), rand.Next(0, (int)(displayHeight - agentTextureHeight)), agentTextureWidth, agentTextureHeight, (float)rand.NextDouble() * MathHelper.TwoPi);
         }
 

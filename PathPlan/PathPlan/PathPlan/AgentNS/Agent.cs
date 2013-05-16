@@ -33,26 +33,27 @@ namespace PathPlan.AgentNS
         private MouseState mauseState;
 
         private Dijkstra dijkstra;
+        public string name;
 
 
-        public Agent(Game1 game, SpriteBatch spriteBatch, Texture2D texture, float x, float y, float width, float height, float theInitialRotation, Color color,Dijkstra dijkstra)
+        public Agent(Game1 game, SpriteBatch spriteBatch, Texture2D texture, float x, float y, float width, float height, float theInitialRotation, Color color,Dijkstra dijkstra,string name)
             : base(game)
         {
             this.game = game;
             this.spriteBatch = spriteBatch;
             this.texture = texture;
-            config = new Configuration(new FloatRectangle(new Vector2(x, y), new Vector2(width, height)), theInitialRotation);
+            config = new Configuration(new FloatRectangle(new Vector2(x, y), new Vector2(width, height)), theInitialRotation,name);
             this.color = color;
             this.dijkstra = dijkstra;
         }
 
-        public Agent(Game1 game, SpriteBatch spriteBatch, Texture2D texture, float x, float y, float width, float height, float theInitialRotation)
+        public Agent(Game1 game, SpriteBatch spriteBatch, Texture2D texture, float x, float y, float width, float height, float theInitialRotation,string name)
             : base(game)
         {
             this.game = game;
             this.spriteBatch = spriteBatch;
             this.texture = texture;
-            config = new Configuration(new FloatRectangle(new Vector2(x, y), new Vector2(width, height)), theInitialRotation);
+            config = new Configuration(new FloatRectangle(new Vector2(x, y), new Vector2(width, height)), theInitialRotation,name);
             this.color = Color.Chocolate;
             this.dijkstra = null;
         }
@@ -84,32 +85,39 @@ namespace PathPlan.AgentNS
             if (!startConfigLocated && !goalConfigLocated)
             {
                 config = new Configuration(mauseState.X, mauseState.Y, config.Width, config.Height, config.Rotation);
-                if (Keyboard.GetState().IsKeyDown(Keys.T))
-                    config.Rotation += 0.1F;
-                if (mauseState.LeftButton == ButtonState.Pressed)
+                if (!config.isOnObstacle(game.scenario.obstacles))
                 {
-                    startConfigLocated = true;
-                    startConfig = new Configuration(mauseState.X, mauseState.Y, config.Width, config.Height, config.Rotation);
-                    dijkstra.startConfig = startConfig;
-                }
+                    if (Keyboard.GetState().IsKeyDown(Keys.T))
+                        config.Rotation += 0.1F;
+                    if (mauseState.LeftButton == ButtonState.Pressed)
+                    {
+                        startConfigLocated = true;
+                        startConfig = new Configuration(mauseState.X, mauseState.Y, config.Width, config.Height, config.Rotation);
+                        dijkstra.startConfig = startConfig;
+                    }
+                } 
             }
             else if (startConfigLocated && !goalConfigLocated)
             {
                 config = new Configuration(mauseState.X, mauseState.Y, config.Width, config.Height, config.Rotation);
-                if (Keyboard.GetState().IsKeyDown(Keys.T))
-                    config.Rotation += 0.1F;
-                if (mauseState.RightButton == ButtonState.Pressed)
+                if (!config.isOnObstacle(game.scenario.obstacles))
                 {
-                    goalConfigLocated = true;
-                    goalConfig = new Configuration(mauseState.X, mauseState.Y, config.Width, config.Height, config.Rotation);
-                    dijkstra.goalConfig = goalConfig;
-                    dijkstra.addStartAndGoalConfigtoConnectedRoadmapList();
-                    dijkstra.getShortestPath();
-                    config = new Configuration(startConfig.X, startConfig.Y, startConfig.Width, startConfig.Height, startConfig.Rotation);
+                    if (Keyboard.GetState().IsKeyDown(Keys.T))
+                        config.Rotation += 0.1F;
+                    if (mauseState.RightButton == ButtonState.Pressed)
+                    {
+                        goalConfigLocated = true;
+                        goalConfig = new Configuration(mauseState.X, mauseState.Y, config.Width, config.Height, config.Rotation);
+                        dijkstra.goalConfig = goalConfig;
+                        dijkstra.addStartAndGoalConfigtoConnectedRoadmapList();
+                        dijkstra.getShortestPath();
+                        config = new Configuration(startConfig.X, startConfig.Y, startConfig.Width, startConfig.Height, startConfig.Rotation);
+                    }
                 }
             }
             else
             {
+
                 if (dijkstra.stations.Count != 0)
                 {
                     Vector2 yon = dijkstra.stations.ElementAt(0).CollisionRectangle.position - config.CollisionRectangle.position;
@@ -123,6 +131,10 @@ namespace PathPlan.AgentNS
                     {
                         //config = dijkstra.stations.ElementAt(0);
                         dijkstra.stations.Dequeue();
+                    }
+                    if (dijkstra.stations.Count == 0)
+                    {
+                        this.config = goalConfig;
                     }
                 }
                 
@@ -171,6 +183,8 @@ namespace PathPlan.AgentNS
             }
             aPositionAdjusted = new Rectangle((int)this.config.X + (int)(this.config.Width / 2), (int)this.config.Y + (int)(this.config.Height / 2), (int)this.config.Width, (int)this.config.Height);
             spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), color, this.config.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
+            aPositionAdjusted = new Rectangle((int)this.config.X + (int)(this.config.Width / 2), (int)this.config.Y + (int)(this.config.Height / 2), (int)this.config.Width/3, (int)this.config.Height/3);
+            spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), Color.Black, this.config.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
             spriteBatch.End();
             base.Draw(gameTime);
         }

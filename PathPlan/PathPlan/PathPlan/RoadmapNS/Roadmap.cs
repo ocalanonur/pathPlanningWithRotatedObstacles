@@ -9,6 +9,7 @@ using PathPlan.ScenarioNS;
 using PathPlan.ObstacleNS;
 using Microsoft.Xna.Framework.Input;
 using PathPlan.AgentNS;
+using System.Threading;
 
 namespace PathPlan.RoadmapNS
 {
@@ -18,7 +19,7 @@ namespace PathPlan.RoadmapNS
         public int depth;
         public List<Configuration> samples = new List<Configuration>();
 
-        private string samplingMethod = "AroundObstacles";
+        private string samplingMethod = "AroundObstacles";  // "Random" , "AroundObstacles" , "OnlyAroundObstacles"
 
         private Game1 game;
         private GraphicsDeviceManager graphicDevice;
@@ -48,8 +49,10 @@ namespace PathPlan.RoadmapNS
             this.agentTextureHeight = agentTextureHeight;
             displayWidth = graphicDevice.PreferredBackBufferWidth;
             displayHeight = graphicDevice.PreferredBackBufferHeight;
-            fillSampleListRandom(samplingMethod);     // "Random" , "AroundObstacles" , "OnlyAroundObstacles"
-            connectConfiguration();
+
+            fillSampleListRandom(samplingMethod);
+            if(depth != 0)
+                connectConfiguration();
         }
 
         public override void Update(GameTime gameTime)
@@ -72,13 +75,15 @@ namespace PathPlan.RoadmapNS
                 foreach (Configuration conf in samples)
                 {
                     aPositionAdjusted = new Rectangle((int)conf.X + (int)(conf.Width / 2), (int)conf.Y + (int)(conf.Height / 2), (int)conf.Width, (int)conf.Height);
-                    spriteBatch.Draw(texture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), Color.Green, conf.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
+                    spriteBatch.Draw(game.obstacleTexture, aPositionAdjusted, new Rectangle(0, 0, 2, 6), Color.Magenta, conf.Rotation, new Vector2(2 / 2, 6 / 2), SpriteEffects.None, 0);
+                   
                     foreach (Configuration nbConf in conf.neighbors)
                     {
                         float angle = (float)Math.Atan2(nbConf.CollisionRectangle.position.Y - conf.CollisionRectangle.position.Y, nbConf.CollisionRectangle.position.X - conf.CollisionRectangle.position.X);
                         float length = Vector2.Distance(conf.CollisionRectangle.position, nbConf.CollisionRectangle.position);
-                        spriteBatch.Draw(blank, new Vector2(conf.CollisionRectangle.position.X + conf.Width/2, conf.CollisionRectangle.position.Y+ conf.Height/2), null, Color.White, angle, Vector2.Zero, new Vector2(length, (float)1), SpriteEffects.None, 0);
+                        spriteBatch.Draw(blank, new Vector2(conf.CollisionRectangle.position.X + conf.Width/2, conf.CollisionRectangle.position.Y+ conf.Height/2), null, Color.Black, angle, Vector2.Zero, new Vector2(length, (float)1), SpriteEffects.None, 0);
                     }
+                   
 
                 }
                 spriteBatch.End();
@@ -92,14 +97,17 @@ namespace PathPlan.RoadmapNS
             switch (method)
             {
                 case "Random":
+                    #region RandomSampleFilling
                     for (int i = 0; i < numberOfSample; i++)
                         samples.Add(getFreeConfiguration());
                     break;
+                    #endregion
                 case "AroundObstacles":
+                    #region AroundObstaclesSampleFilling
                     for (int i = 0; i < numberOfSample; i++)
                     {
                         conf = getRandomConfig();
-                        Agent a = new Agent(game, spriteBatch, texture, conf.X, conf.Y, conf.Width, conf.Height, conf.Rotation);
+                        Agent a = new Agent(game, spriteBatch, texture, conf.X, conf.Y, conf.Width, conf.Height, conf.Rotation,"a"+i.ToString());
                         if (a.config.isOnObstacle(scenario.obstacles))
                         {
                             Vector2 randomDirection;
@@ -119,11 +127,13 @@ namespace PathPlan.RoadmapNS
                             samples.Add(getFreeConfiguration());    // Eğer sample boşlukta çıktıysa direk alınır.
                     }
                     break;
+                    #endregion
                 case "OnlyAroundObstacles":
+                    #region OnlyAroundObstacles
                     for (int i = 0; i < numberOfSample; i++)
                     {
                         conf = getRandomConfig();
-                        Agent a = new Agent(game, spriteBatch, texture, conf.X, conf.Y, conf.Width, conf.Height, conf.Rotation);
+                        Agent a = new Agent(game, spriteBatch, texture, conf.X, conf.Y, conf.Width, conf.Height, conf.Rotation,"a"+i.ToString());
                         if (a.config.isOnObstacle(scenario.obstacles))
                         {
                             Vector2 randomDirection;
@@ -142,6 +152,25 @@ namespace PathPlan.RoadmapNS
                         }
                     }
                     break;
+                    #endregion
+                case "Special1":
+                    Agent c = new Agent(game, spriteBatch, texture, 30, 60, 5, 5, 0.0f,"a1");
+                    samples.Add(c.config);
+                    c = new Agent(game, spriteBatch, texture, 90, 20, 5, 5, 0.0f, "a2");
+                    samples.Add(c.config);
+                    c = new Agent(game, spriteBatch, texture, 100, 70, 5, 5, 0.0f, "a3");
+                    samples.Add(c.config);
+                    c = new Agent(game, spriteBatch, texture, 90, 120, 5, 5, 0.0f, "a4");
+                    samples.Add(c.config);
+                    c = new Agent(game, spriteBatch, texture, 280, 320, 5, 5, 0.0f, "a5");
+                    samples.Add(c.config);
+                    c = new Agent(game, spriteBatch, texture, 320, 280, 5, 5, 0.0f, "a6");
+                    samples.Add(c.config);
+                    c = new Agent(game, spriteBatch, texture, 330, 310, 5, 5, 0.0f, "a7");
+                    samples.Add(c.config);
+                    c = new Agent(game, spriteBatch, texture, 320, 350, 5, 5, 0.0f, "a8");
+                    samples.Add(c.config);
+                    break;
             }
         }
 
@@ -151,7 +180,7 @@ namespace PathPlan.RoadmapNS
             for (int i = 0; i < numberOfSample; i++)
             {
                 conf = getRandomConfig();
-                Agent a = new Agent(game, spriteBatch, texture, conf.X, conf.Y, conf.Width, conf.Height, conf.Rotation);
+                Agent a = new Agent(game, spriteBatch, texture, conf.X, conf.Y, conf.Width, conf.Height, conf.Rotation,"a"+i.ToString());
                 if (a.config.isOnObstacle(scenario.obstacles))
                 {
                     Vector2 randomDirection;
@@ -193,7 +222,7 @@ namespace PathPlan.RoadmapNS
                         break;
                     }
                 }
-            } while (continueSearch);
+            } while (continueSearch);     
             return conf;
         }
 
@@ -203,7 +232,7 @@ namespace PathPlan.RoadmapNS
             {
                 foreach (Configuration c2 in samples)
                 {
-                    if (c1 == c2)   // Eğer yapılandırmalar aynı ise birbirine bağlanmaz.
+                    if ((c1 == c2) || (c1.neighbors.Contains(c2)) )   // Eğer yapılandırmalar aynı ise veya 
                         continue;
                     if (c1.neighbors.Count < depth) // Eğer eklenmiş komşu yapılandırma sayısı henüz depth değerine ulaşmamışsa...
                     {
@@ -224,10 +253,10 @@ namespace PathPlan.RoadmapNS
                         {
                             if (c1.isConnectable(c2, scenario.obstacles))
                             {
-                                c1.neighbors[farthestIndex].neighbors.Remove(c1);   /// Sonradan
+                                //c1.neighbors[farthestIndex].neighbors.Remove(c1);
                                 c1.neighbors.RemoveAt(farthestIndex);
                                 c1.neighbors.Add(c2);
-                                c2.neighbors.Add(c1);   /// Sonradan
+                                c2.neighbors.Add(c1);
                             }
                         }
                     }
@@ -237,7 +266,7 @@ namespace PathPlan.RoadmapNS
 
         private Configuration getRandomConfig()
         {
-            return new Configuration(rand.Next(0, (int)(displayWidth - agentTextureWidth)), rand.Next(0, (int)(displayHeight - agentTextureHeight)), agentTextureWidth, agentTextureHeight, (float)rand.NextDouble() * MathHelper.TwoPi);
+            return new Configuration(rand.Next(0, (int)(displayWidth - agentTextureWidth)), rand.Next(0, (int)(displayHeight - agentTextureHeight)), agentTextureWidth, agentTextureHeight, /*0*/(float)rand.NextDouble() * MathHelper.TwoPi);
         }
 
     }

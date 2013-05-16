@@ -27,11 +27,13 @@ namespace PathPlan
         SpriteBatch spriteBatch;
         SpriteFont font;
 
-        Texture2D t;
-        Scenario scenario;
+        public Texture2D t;
+        public Scenario scenario;
         Roadmap roadmap;
         Agent agent;
         Dijkstra dijsktra;
+
+        public Texture2D obstacleTexture;
 
         
 
@@ -63,10 +65,12 @@ namespace PathPlan
             spriteBatch = new SpriteBatch(GraphicsDevice);
             font = Content.Load<SpriteFont>("myFont");
             t = Content.Load<Texture2D>("Square");
-            scenario = new Scenario(this, spriteBatch, t, "Scenario2");
-            roadmap = new Roadmap(this, graphics, spriteBatch, t, scenario, 200, 10, 20, 60);
+            obstacleTexture = Content.Load<Texture2D>("randomPosition");
+            scenario = new Scenario(this, spriteBatch, t, "DuzDarBogaz");
+            roadmap = new Roadmap(this, graphics, spriteBatch, t, scenario, 100, 5, 20, 60);
             dijsktra = new Dijkstra(roadmap);
-            agent = new Agent(this, spriteBatch, t, 0, 0, 20, 60, 0.0F, Color.Yellow,dijsktra);
+            agent = new Agent(this, spriteBatch, t, 0, 0, 20, 60, 0.0F, Color.Yellow,dijsktra,"deneme");
+
 
             roadmap.Enabled = true;
             agent.Enabled = true;
@@ -105,7 +109,7 @@ namespace PathPlan
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.White);
             //spriteBatch.Begin();
             //spriteBatch.DrawString(font, agent.config.Rotation.ToString(), new Vector2(90, 90), Color.Gold);
             //spriteBatch.End();          

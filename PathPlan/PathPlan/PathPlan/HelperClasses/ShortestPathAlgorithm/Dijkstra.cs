@@ -90,9 +90,15 @@ namespace PathPlan.HelperClasses.ShortestPathAlgorithm
             while (roadmap.samples[roadmap.samples.Count-2].dijkstraParent != null)
             {
                 //agent.stations.Enqueue(agent.position.dijkstraParent);
-                stations.Enqueue(new Configuration(roadmap.samples[roadmap.samples.Count-2].dijkstraParent.CollisionRectangle,roadmap.samples[roadmap.samples.Count-2].dijkstraParent.Rotation));
+                stations.Enqueue(new Configuration(roadmap.samples[roadmap.samples.Count-2].dijkstraParent.CollisionRectangle,roadmap.samples[roadmap.samples.Count-2].dijkstraParent.Rotation,"dijkstra"));
                 roadmap.samples[roadmap.samples.Count-2].dijkstraParent = roadmap.samples[roadmap.samples.Count-2].dijkstraParent.dijkstraParent;
             }
+        }
+        public void clear()
+        {
+            startConfig = null;
+            goalConfig = null;
+            stations.Clear();
         }
     }
 }

@@ -27,7 +27,7 @@ namespace PathPlan.ObstacleNS
         {
             this.spriteBatch = spriteBatch;
             this.texture = texture;
-            config = new Configuration(new FloatRectangle(new Vector2(x,y),new Vector2(width,height)), theInitialRotation);
+            config = new Configuration(new FloatRectangle(new Vector2(x,y),new Vector2(width,height)), theInitialRotation, "obstacle");
         }
 
         public Obstacle(Game game, SpriteBatch spriteBatch,Texture2D texture ,FloatRectangle theRectangle, float theInitialRotation)
@@ -35,7 +35,7 @@ namespace PathPlan.ObstacleNS
         {
             this.spriteBatch = spriteBatch;
             this.texture = texture;
-            config = new Configuration(theRectangle, theInitialRotation);
+            config = new Configuration(theRectangle, theInitialRotation,"obstacle");
         }
 
         

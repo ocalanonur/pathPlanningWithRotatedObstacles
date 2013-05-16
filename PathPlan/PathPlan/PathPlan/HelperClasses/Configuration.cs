@@ -24,6 +24,7 @@ namespace PathPlan.HelperClasses
         }
         public Vector2 Origin;
         public List<Configuration> neighbors = new List<Configuration>();
+        public string name;
 
 
         #region DijkstraVariables
@@ -40,11 +41,12 @@ namespace PathPlan.HelperClasses
 
         }
 
-        public Configuration(FloatRectangle CollisionRectangle, float Rotation)
+        public Configuration(FloatRectangle CollisionRectangle, float Rotation,string name)
         {
             this.CollisionRectangle = CollisionRectangle;
             this.rotation = Rotation;
             Origin = new Vector2(CollisionRectangle.size.X / 2, CollisionRectangle.size.Y / 2);
+            this.name = name;
 
         }
         /// <summary>
@@ -66,7 +68,7 @@ namespace PathPlan.HelperClasses
         /// <returns></returns>
         public bool Intersects(FloatRectangle theRectangle)
         {
-            return Intersects(new Configuration(theRectangle, 0.0f));
+            return Intersects(new Configuration(theRectangle, 0.0f,this.name));
         }
 
         /// <summary>
